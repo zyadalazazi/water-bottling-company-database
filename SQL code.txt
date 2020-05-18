@@ -1,0 +1,223 @@
+-	Table structure for the EMPLOYEE table 
+
+CREATE TABLE EMPLOYEE
+(
+ID CHAR(9) NOT NULL,
+PRIMARY KEY(ID),
+FirstName VARCHAR(20) ,
+MiddleName VARCHAR(20) ,
+LastName VARCHAR(20),
+Gender CHAR(1) CHECK (Gender IN ('F', 'M', 'O')) NOT NULL,
+B_Day INT CHECK (B_Day > -1 AND B_Day <32),
+B_Month INT  CHECK (B_Month > -1 AND B_Month <13),
+B_Year INT CHECK (B_Year >1965 AND B_Year < 2001),
+Salary FLOAT(5),
+Address VARCHAR(50),
+startTime VARCHAR(5) NOT NULL,
+endTime VARCHAR(5) NOT NULL,
+NumbOfDays INT ,
+ExtraHours  INT DEFAULT 0,
+D_Number INT ,
+Factory_number INT ,
+SH_ID INT
+);
+
+And the following is added at the end so that employee will be able to relate to relations that are mentioned after it
+
+ALTER TABLE EMPLOYEE ADD FOREIGN KEY (D_Number) REFERENCES DEPARTMENT(D_number)ON DELETE SET NULL;
+ALTER TABLE EMPLOYEE ADD FOREIGN KEY (Factory_number) REFERENCES FACTORY(FactoryNumber)ON DELETE SET NULL;
+ALTER TABLE EMPLOYEE ADD FOREIGN KEY (SH_ID) REFERENCES SHOP(SH_ID) ON DELETE CASCADE;
+
+-	Table structure for the BRANCH table
+
+CREATE TABLE BRANCH
+(
+B_number INT PRIMARY KEY NOT NULL,
+NoOFEmployees INT,
+Phone_number CHAR(10),
+country VARCHAR(20),
+city VARCHAR (20),
+street VARCHAR(20),
+EID CHAR(9),
+FOREIGN KEY (EID) REFERENCES EMPLOYEE(ID)  ON DELETE SET NULL
+);
+
+-	Table structure for the DEPARTMENT table 
+
+CREATE TABLE DEPARTMENT
+(
+D_number INT PRIMARY KEY NOT NULL CHECK (D_number > 0 AND D_number < 30),
+D_name VARCHAR(20) NOT NULL,
+NoOfEmployees INT,
+EID CHAR(9) ,
+B_Number INT NOT NULL,
+FOREIGN KEY (EID) REFERENCES EMPLOYEE(ID) ON DELETE SET NULL,
+FOREIGN KEY (B_Number) REFERENCES BRANCH(B_number) ON DELETE CASCADE
+);
+
+
+-	Table structure for the SHOP table
+
+CREATE TABLE SHOP
+(
+SH_ID INT PRIMARY KEY NOT NULL,
+No_OfEmployees INT,
+country VARCHAR(20),
+city VARCHAR (20),
+street VARCHAR(20),
+Phone_No CHAR(10),
+EID CHAR(9) NOT NULL,
+FOREIGN KEY (EID) REFERENCES EMPLOYEE(ID)ON DELETE SET NULL
+);
+ 
+
+-	Table structure for the FACTORY table
+
+CREATE TABLE FACTORY
+(
+FactoryNumber INT PRIMARY KEY NOT NULL,
+NoOfEmployees INT,
+B_Number INT DEFAULT '1' NOT NULL ,
+FOREIGN KEY (B_Number) REFERENCES BRANCH(B_number)
+);
+
+-	Table structure for the CUSTOMER table
+
+CREATE TABLE CUSTOMER
+(
+C_ID CHAR(9) PRIMARY KEY NOT NULL,
+Name VARCHAR(50) UNIQUE,
+Type VARCHAR(7) DEFAULT 'First' CHECK (Type IN ('First', 'Regular', 'Loyal')) NOT NULL,
+LoyaltyPoints INT DEFAULT 0 ,
+country VARCHAR(20),
+city VARCHAR (20),
+street VARCHAR(20)
+);
+
+-	Table structure for the SUPPLIER table
+
+CREATE TABLE SUPPLIER
+(
+Supplier_ID CHAR(7) PRIMARY KEY NOT NULL,
+Name VARCHAR(50) UNIQUE,
+Contact_name VARCHAR(50) ,
+Contact_Title VARCHAR(30),
+country VARCHAR(20),
+city VARCHAR (20),
+street VARCHAR(20)
+);
+
+-	Table structure for the CONTRACT table
+
+CREATE TABLE CONTRACT
+(
+Contract_ID CHAR(7) NOT NULL,
+PRIMARY KEY(Contract_ID),
+StartDate CHAR(10) NOT NULL,
+EndDate CHAR(10) NOT NULL,
+Quantity INT,
+Payment FLOAT(5) NOT NULL,
+Reward FLOAT(5),
+C_ID CHAR(9),
+Supplier_ID CHAR(7),
+FOREIGN KEY (C_ID) REFERENCES CUSTOMER(C_ID) ON DELETE SET NULL,
+FOREIGN KEY (Supplier_ID) REFERENCES SUPPLIER(Supplier_ID) ON DELETE SET NULL
+);
+
+-	Table structure for the PRODUCT table
+
+CREATE TABLE PRODUCT
+(
+P_ID CHAR(5) PRIMARY KEY NOT NULL,
+ProductName VARCHAR(20) UNIQUE,
+ProductionMonth INT CHECK (ProductionMonth > 0 AND ProductionMonth< 13),
+ProductionYear INT CHECK (ProductionYear > 2000),
+Volume FLOAT(5),
+Type VARCHAR(20),
+contractID CHAR(7) NOT NULL,
+SH_ID INT NOT NULL,
+FOREIGN KEY (contractID) REFERENCES CONTRACT(Contract_ID)ON DELETE SET NULL,
+FOREIGN KEY (SH_ID) REFERENCES SHOP(SH_ID) ON DELETE SET NULL
+);
+
+-	Table structure for the MACHINERY table
+
+CREATE TABLE MACHINERY
+(
+SerialNumber CHAR(50) PRIMARY KEY NOT NULL,
+Type CHAR (20),
+Service CHAR(1) CHECK (Service IN ('W', 'N')) NOT NULL,
+Factory_number INT NOT NULL,
+FOREIGN KEY (Factory_number) REFERENCES FACTORY(FactoryNumber) ON DELETE CASCADE
+);
+
+
+
+
+
+
+
+-	Table structure for the SUPPLY table
+
+CREATE TABLE SUPPLY
+(
+Supply_ID CHAR(5) PRIMARY KEY NOT NULL,
+SupplyName VARCHAR(20) NOT NULL,
+Material VARCHAR(20),
+Type VARCHAR(20),
+ContractID CHAR(9) NOT NULL,
+FOREIGN KEY (ContractID) REFERENCES CONTRACT(Contract_ID) ON DELETE CASCADE
+
+);
+
+
+-	Table structure for the CONSUMES table
+
+CREATE TABLE CONSUMES
+(
+Supply_ID CHAR(5) NOT NULL,
+FactoryNumber INT NOT NULL,
+
+PRIMARY KEY (Supply_ID, FactoryNumber),
+FOREIGN KEY (FactoryNumber) REFERENCES FACTORY(FactoryNumber) ON DELETE CASCADE,
+FOREIGN KEY (Supply_ID) REFERENCES SUPPLY(Supply_ID) ON DELETE CASCADE
+
+);
+
+
+
+-	Table structure for the PRODUCES table
+
+CREATE TABLE PRODUCES
+(
+Product_ID CHAR(9) NOT NULL,
+FactoryNumber INT NOT NULL,
+Quantity INT,
+
+
+PRIMARY KEY (Product_ID, FactoryNumber),
+FOREIGN KEY (FactoryNumber) REFERENCES FACTORY(FactoryNumber) ON DELETE CASCADE,
+FOREIGN KEY (Product_ID) REFERENCES PRODUCT(P_ID) ON DELETE CASCADE
+);
+
+-	Table structure for the DEPT_PHONENUMBER table
+
+CREATE TABLE DEPT_PHONENUMBER
+(
+Dnumber INT NOT NULL CHECK (Dnumber > 0 AND Dnumber < 30),
+DPhoneNumber CHAR(10) NOT NULL,
+PRIMARY KEY (Dnumber, DPhoneNumber),
+FOREIGN KEY (Dnumber) REFERENCES DEPARTMENT (D_number) ON DELETE CASCADE
+);
+
+
+-	Table structure for the EMP_PHONENUMBER table
+
+CREATE TABLE EMP_PHONENUMBER
+(
+EID CHAR(9) NOT NULL,
+EPhoneNumber CHAR(10) NOT NULL,
+FOREIGN KEY (EID) REFERENCES EMPLOYEE (ID) ON DELETE CASCADE ,
+PRIMARY KEY (EID, EPhoneNumber)
+);
+
